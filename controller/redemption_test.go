@@ -43,7 +43,7 @@ func TestExportRedemptionsReturnsFilteredCSV(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	response := httptest.NewRecorder()
 	context, _ := gin.CreateTestContext(response)
-	context.Request = httptest.NewRequest(http.MethodGet, "/api/redemption/export?keyword=%3Dunsafe-name&status=1", nil)
+	context.Request = httptest.NewRequest(http.MethodGet, "/api/redemption/export?name=unsafe&status=1", nil)
 
 	ExportRedemptions(context)
 

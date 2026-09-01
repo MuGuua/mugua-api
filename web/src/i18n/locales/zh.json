@@ -5319,6 +5319,10 @@
     "Zoom": "缩放",
     "Export CSV": "导出 CSV",
     "Exporting...": "导出中...",
-    "Redemption codes exported successfully": "兑换码导出成功"
+    "Redemption codes exported successfully": "兑换码导出成功",
+    "Export Redemption Codes": "导出兑换码",
+    "Select optional filters before exporting redemption codes.": "导出兑换码前可选择筛选条件。",
+    "Name contains": "名称包含",
+    "All statuses": "全部状态"
   }
 }

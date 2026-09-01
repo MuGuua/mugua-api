@@ -109,13 +109,13 @@ func TestGetRedemptionsForExportFiltersAndOrders(t *testing.T) {
 
 	now := common.GetTimestamp()
 	redemptions := []Redemption{
-		{Name: "export-alpha", Key: "20000000000000000000000000000001", Status: common.RedemptionCodeStatusEnabled, ExpiredTime: 0},
-		{Name: "export-alpha", Key: "20000000000000000000000000000002", Status: common.RedemptionCodeStatusUsed, ExpiredTime: 0},
+		{Name: "prefix-export-alpha-suffix", Key: "20000000000000000000000000000001", Status: common.RedemptionCodeStatusEnabled, ExpiredTime: 0},
+		{Name: "prefix-export-alpha-suffix", Key: "20000000000000000000000000000002", Status: common.RedemptionCodeStatusUsed, ExpiredTime: 0},
 		{Name: "export-beta", Key: "20000000000000000000000000000003", Status: common.RedemptionCodeStatusEnabled, ExpiredTime: now - 1},
 	}
 	require.NoError(t, DB.Create(&redemptions).Error)
 
-	rows, err := GetRedemptionsForExport("export-alpha", "3")
+	rows, err := GetRedemptionsForExport("alpha", "3")
 	require.NoError(t, err)
 	require.Len(t, rows, 1)
 	assert.Equal(t, "20000000000000000000000000000002", rows[0].Key)

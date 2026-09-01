@@ -5319,6 +5319,10 @@
     "Zoom": "Zoom",
     "Export CSV": "Xuất CSV",
     "Exporting...": "Đang xuất...",
-    "Redemption codes exported successfully": "Đã xuất mã đổi thưởng thành công"
+    "Redemption codes exported successfully": "Đã xuất mã đổi thưởng thành công",
+    "Export Redemption Codes": "Xuất mã đổi thưởng",
+    "Select optional filters before exporting redemption codes.": "Chọn bộ lọc tùy chọn trước khi xuất mã đổi thưởng.",
+    "Name contains": "Tên chứa",
+    "All statuses": "Tất cả trạng thái"
   }
 }

@@ -70,6 +70,11 @@ export interface SearchRedemptionsParams {
   page_size?: number
 }
 
+export interface RedemptionExportParams {
+  name?: string
+  status?: string
+}
+
 export interface RedemptionFormData {
   id?: number
   name: string
@@ -83,4 +88,9 @@ export interface RedemptionFormData {
 // Dialog Types
 // ============================================================================
 
-export type RedemptionsDialogType = 'create' | 'update' | 'delete' | 'view'
+export type RedemptionsDialogType =
+  | 'create'
+  | 'update'
+  | 'delete'
+  | 'view'
+  | 'export'

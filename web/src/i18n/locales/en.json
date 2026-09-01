@@ -5319,6 +5319,10 @@
     "Zoom": "Zoom",
     "Export CSV": "Export CSV",
     "Exporting...": "Exporting...",
-    "Redemption codes exported successfully": "Redemption codes exported successfully"
+    "Redemption codes exported successfully": "Redemption codes exported successfully",
+    "Export Redemption Codes": "Export Redemption Codes",
+    "Select optional filters before exporting redemption codes.": "Select optional filters before exporting redemption codes.",
+    "Name contains": "Name contains",
+    "All statuses": "All statuses"
   }
 }

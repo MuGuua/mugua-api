@@ -5319,6 +5319,10 @@
     "Zoom": "縮放",
     "Export CSV": "匯出 CSV",
     "Exporting...": "匯出中...",
-    "Redemption codes exported successfully": "兌換碼匯出成功"
+    "Redemption codes exported successfully": "兌換碼匯出成功",
+    "Export Redemption Codes": "匯出兌換碼",
+    "Select optional filters before exporting redemption codes.": "匯出兌換碼前可選擇篩選條件。",
+    "Name contains": "名稱包含",
+    "All statuses": "全部狀態"
   }
 }

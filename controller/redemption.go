@@ -46,7 +46,11 @@ func SearchRedemptions(c *gin.Context) {
 }
 
 func ExportRedemptions(c *gin.Context) {
-	redemptions, err := model.GetRedemptionsForExport(c.Query("keyword"), c.Query("status"))
+	name := c.Query("name")
+	if name == "" {
+		name = c.Query("keyword")
+	}
+	redemptions, err := model.GetRedemptionsForExport(name, c.Query("status"))
 	if err != nil {
 		common.ApiError(c, err)
 		return

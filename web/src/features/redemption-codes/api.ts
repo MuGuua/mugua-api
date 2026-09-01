@@ -24,6 +24,7 @@ import type {
   GetRedemptionsParams,
   GetRedemptionsResponse,
   SearchRedemptionsParams,
+  RedemptionExportParams,
   RedemptionFormData,
 } from './types'
 
@@ -56,10 +57,10 @@ export async function searchRedemptions(
 
 // Export redemption codes as CSV
 export async function exportRedemptions(
-  params: Pick<SearchRedemptionsParams, 'keyword' | 'status'> = {}
+  params: RedemptionExportParams = {}
 ): Promise<Blob> {
   const queryParams = new URLSearchParams()
-  if (params.keyword) queryParams.set('keyword', params.keyword)
+  if (params.name) queryParams.set('name', params.name)
   if (params.status) queryParams.set('status', params.status)
   const query = queryParams.toString()
   const res = await api.get(

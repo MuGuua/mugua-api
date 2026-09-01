@@ -5319,6 +5319,10 @@
     "Zoom": "ズーム",
     "Export CSV": "CSVをエクスポート",
     "Exporting...": "エクスポート中...",
-    "Redemption codes exported successfully": "引き換えコードを正常にエクスポートしました"
+    "Redemption codes exported successfully": "引き換えコードを正常にエクスポートしました",
+    "Export Redemption Codes": "引き換えコードをエクスポート",
+    "Select optional filters before exporting redemption codes.": "引き換えコードをエクスポートする前に、任意のフィルターを選択してください。",
+    "Name contains": "名前に含む",
+    "All statuses": "すべてのステータス"
   }
 }

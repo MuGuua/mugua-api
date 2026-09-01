@@ -5319,6 +5319,10 @@
     "Zoom": "Zoom",
     "Export CSV": "Экспорт CSV",
     "Exporting...": "Экспорт...",
-    "Redemption codes exported successfully": "Коды погашения успешно экспортированы"
+    "Redemption codes exported successfully": "Коды погашения успешно экспортированы",
+    "Export Redemption Codes": "Экспорт кодов погашения",
+    "Select optional filters before exporting redemption codes.": "Перед экспортом кодов погашения можно выбрать дополнительные фильтры.",
+    "Name contains": "Имя содержит",
+    "All statuses": "Все статусы"
   }
 }

@@ -94,8 +94,8 @@ func SearchRedemptions(keyword string, status string, startIdx int, num int) (re
 	return redemptions, total, nil
 }
 
-func GetRedemptionsForExport(keyword string, status string) (redemptions []*Redemption, err error) {
-	query := buildRedemptionQuery(DB, keyword, status)
+func GetRedemptionsForExport(name string, status string) (redemptions []*Redemption, err error) {
+	query := buildRedemptionExportQuery(DB, name, status)
 	err = query.Order("id desc").Find(&redemptions).Error
 	return redemptions, err
 }
@@ -111,29 +111,43 @@ func buildRedemptionQuery(db *gorm.DB, keyword string, status string) *gorm.DB {
 		}
 	}
 
-	if status != "" {
-		now := common.GetTimestamp()
-		switch status {
-		case "expired":
-			query = query.Where(
-				"status = ? AND expired_time != 0 AND expired_time < ?",
-				common.RedemptionCodeStatusEnabled,
-				now,
-			)
-		case strconv.Itoa(common.RedemptionCodeStatusEnabled):
-			query = query.Where(
-				"status = ? AND (expired_time = 0 OR expired_time >= ?)",
-				common.RedemptionCodeStatusEnabled,
-				now,
-			)
-		case strconv.Itoa(common.RedemptionCodeStatusDisabled):
-			query = query.Where("status = ?", common.RedemptionCodeStatusDisabled)
-		case strconv.Itoa(common.RedemptionCodeStatusUsed):
-			query = query.Where("status = ?", common.RedemptionCodeStatusUsed)
-		}
+	return applyRedemptionStatusFilter(query, status)
+}
+
+func buildRedemptionExportQuery(db *gorm.DB, name string, status string) *gorm.DB {
+	query := db.Model(&Redemption{})
+	if name != "" {
+		query = query.Where("name LIKE ?", "%"+name+"%")
+	}
+	return applyRedemptionStatusFilter(query, status)
+}
+
+func applyRedemptionStatusFilter(query *gorm.DB, status string) *gorm.DB {
+	if status == "" {
+		return query
 	}
 
-	return query
+	now := common.GetTimestamp()
+	switch status {
+	case "expired":
+		return query.Where(
+			"status = ? AND expired_time != 0 AND expired_time < ?",
+			common.RedemptionCodeStatusEnabled,
+			now,
+		)
+	case strconv.Itoa(common.RedemptionCodeStatusEnabled):
+		return query.Where(
+			"status = ? AND (expired_time = 0 OR expired_time >= ?)",
+			common.RedemptionCodeStatusEnabled,
+			now,
+		)
+	case strconv.Itoa(common.RedemptionCodeStatusDisabled):
+		return query.Where("status = ?", common.RedemptionCodeStatusDisabled)
+	case strconv.Itoa(common.RedemptionCodeStatusUsed):
+		return query.Where("status = ?", common.RedemptionCodeStatusUsed)
+	default:
+		return query
+	}
 }
 
 func GetRedemptionById(id int) (*Redemption, error) {
