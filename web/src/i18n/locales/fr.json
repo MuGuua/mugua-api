@@ -5316,6 +5316,9 @@
     "Zero retention": "Aucune rétention",
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V4",
-    "Zoom": "Zoom"
+    "Zoom": "Zoom",
+    "Export CSV": "Exporter en CSV",
+    "Exporting...": "Exportation...",
+    "Redemption codes exported successfully": "Codes de réduction exportés avec succès"
   }
 }

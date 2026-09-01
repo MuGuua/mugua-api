@@ -71,7 +71,37 @@ func SearchRedemptions(keyword string, status string, startIdx int, num int) (re
 		}
 	}()
 
-	query := tx.Model(&Redemption{})
+	query := buildRedemptionQuery(tx, keyword, status)
+
+	// Get total count
+	err = query.Count(&total).Error
+	if err != nil {
+		tx.Rollback()
+		return nil, 0, err
+	}
+
+	// Get paginated data
+	err = query.Order("id desc").Limit(num).Offset(startIdx).Find(&redemptions).Error
+	if err != nil {
+		tx.Rollback()
+		return nil, 0, err
+	}
+
+	if err = tx.Commit().Error; err != nil {
+		return nil, 0, err
+	}
+
+	return redemptions, total, nil
+}
+
+func GetRedemptionsForExport(keyword string, status string) (redemptions []*Redemption, err error) {
+	query := buildRedemptionQuery(DB, keyword, status)
+	err = query.Order("id desc").Find(&redemptions).Error
+	return redemptions, err
+}
+
+func buildRedemptionQuery(db *gorm.DB, keyword string, status string) *gorm.DB {
+	query := db.Model(&Redemption{})
 
 	if keyword != "" {
 		if id, err := strconv.Atoi(keyword); err == nil {
@@ -103,25 +133,7 @@ func SearchRedemptions(keyword string, status string, startIdx int, num int) (re
 		}
 	}
 
-	// Get total count
-	err = query.Count(&total).Error
-	if err != nil {
-		tx.Rollback()
-		return nil, 0, err
-	}
-
-	// Get paginated data
-	err = query.Order("id desc").Limit(num).Offset(startIdx).Find(&redemptions).Error
-	if err != nil {
-		tx.Rollback()
-		return nil, 0, err
-	}
-
-	if err = tx.Commit().Error; err != nil {
-		return nil, 0, err
-	}
-
-	return redemptions, total, nil
+	return query
 }
 
 func GetRedemptionById(id int) (*Redemption, error) {

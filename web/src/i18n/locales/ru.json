@@ -5316,6 +5316,9 @@
     "Zero retention": "Без хранения данных",
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V4",
-    "Zoom": "Zoom"
+    "Zoom": "Zoom",
+    "Export CSV": "Экспорт CSV",
+    "Exporting...": "Экспорт...",
+    "Redemption codes exported successfully": "Коды погашения успешно экспортированы"
   }
 }

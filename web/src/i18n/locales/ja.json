@@ -5316,6 +5316,9 @@
     "Zero retention": "データ保持なし",
     "Zhipu": "Zhipu",
     "Zhipu V4": "Zhipu V 4",
-    "Zoom": "ズーム"
+    "Zoom": "ズーム",
+    "Export CSV": "CSVをエクスポート",
+    "Exporting...": "エクスポート中...",
+    "Redemption codes exported successfully": "引き換えコードを正常にエクスポートしました"
   }
 }

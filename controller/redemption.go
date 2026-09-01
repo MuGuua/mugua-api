@@ -1,8 +1,11 @@
 package controller
 
 import (
+	"bytes"
+	"encoding/csv"
 	"net/http"
 	"strconv"
+	"time"
 	"unicode/utf8"
 
 	"github.com/QuantumNous/new-api/common"
@@ -40,6 +43,95 @@ func SearchRedemptions(c *gin.Context) {
 	pageInfo.SetItems(redemptions)
 	common.ApiSuccess(c, pageInfo)
 	return
+}
+
+func ExportRedemptions(c *gin.Context) {
+	redemptions, err := model.GetRedemptionsForExport(c.Query("keyword"), c.Query("status"))
+	if err != nil {
+		common.ApiError(c, err)
+		return
+	}
+
+	var buffer bytes.Buffer
+	buffer.WriteString("\xEF\xBB\xBF")
+	writer := csv.NewWriter(&buffer)
+	if err := writer.Write([]string{
+		"ID",
+		"Name",
+		"Code",
+		"Quota",
+		"Status",
+		"Created At",
+		"Redeemed At",
+		"Expires At",
+		"Redeemed By",
+	}); err != nil {
+		common.ApiError(c, err)
+		return
+	}
+
+	now := common.GetTimestamp()
+	for _, redemption := range redemptions {
+		status := redemptionStatusText(redemption.Status, redemption.ExpiredTime, now)
+		if err := writer.Write([]string{
+			strconv.Itoa(redemption.Id),
+			redemptionCSVField(redemption.Name),
+			redemptionCSVField(redemption.Key),
+			strconv.Itoa(redemption.Quota),
+			status,
+			formatRedemptionTime(redemption.CreatedTime),
+			formatRedemptionTime(redemption.RedeemedTime),
+			formatRedemptionTime(redemption.ExpiredTime),
+			strconv.Itoa(redemption.UsedUserId),
+		}); err != nil {
+			common.ApiError(c, err)
+			return
+		}
+	}
+	writer.Flush()
+	if err := writer.Error(); err != nil {
+		common.ApiError(c, err)
+		return
+	}
+
+	c.Header("Content-Type", "text/csv; charset=utf-8")
+	c.Header("Content-Disposition", `attachment; filename="redemption-codes.csv"`)
+	c.Data(http.StatusOK, "text/csv; charset=utf-8", buffer.Bytes())
+}
+
+func redemptionStatusText(status int, expiredTime int64, now int64) string {
+	if status == common.RedemptionCodeStatusEnabled && expiredTime != 0 && expiredTime < now {
+		return "Expired"
+	}
+	switch status {
+	case common.RedemptionCodeStatusEnabled:
+		return "Unused"
+	case common.RedemptionCodeStatusDisabled:
+		return "Disabled"
+	case common.RedemptionCodeStatusUsed:
+		return "Used"
+	default:
+		return strconv.Itoa(status)
+	}
+}
+
+func formatRedemptionTime(timestamp int64) string {
+	if timestamp == 0 {
+		return ""
+	}
+	return time.Unix(timestamp, 0).Format("2006-01-02 15:04:05")
+}
+
+func redemptionCSVField(value string) string {
+	if value == "" {
+		return value
+	}
+	switch value[0] {
+	case '=', '+', '-', '@':
+		return "'" + value
+	default:
+		return value
+	}
 }
 
 func GetRedemption(c *gin.Context) {

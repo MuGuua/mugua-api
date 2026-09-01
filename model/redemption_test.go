@@ -100,6 +100,27 @@ func TestSearchRedemptionsFiltersAndPaginates(t *testing.T) {
 	}
 }
 
+func TestGetRedemptionsForExportFiltersAndOrders(t *testing.T) {
+	require.NoError(t, DB.AutoMigrate(&Redemption{}))
+	require.NoError(t, DB.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&Redemption{}).Error)
+	t.Cleanup(func() {
+		require.NoError(t, DB.Session(&gorm.Session{AllowGlobalUpdate: true}).Unscoped().Delete(&Redemption{}).Error)
+	})
+
+	now := common.GetTimestamp()
+	redemptions := []Redemption{
+		{Name: "export-alpha", Key: "20000000000000000000000000000001", Status: common.RedemptionCodeStatusEnabled, ExpiredTime: 0},
+		{Name: "export-alpha", Key: "20000000000000000000000000000002", Status: common.RedemptionCodeStatusUsed, ExpiredTime: 0},
+		{Name: "export-beta", Key: "20000000000000000000000000000003", Status: common.RedemptionCodeStatusEnabled, ExpiredTime: now - 1},
+	}
+	require.NoError(t, DB.Create(&redemptions).Error)
+
+	rows, err := GetRedemptionsForExport("export-alpha", "3")
+	require.NoError(t, err)
+	require.Len(t, rows, 1)
+	assert.Equal(t, "20000000000000000000000000000002", rows[0].Key)
+}
+
 func setupRedeemFixture(t *testing.T, quota int) (userId int, key string) {
 	t.Helper()
 	require.NoError(t, DB.AutoMigrate(&Redemption{}))

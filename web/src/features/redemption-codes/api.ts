@@ -54,6 +54,21 @@ export async function searchRedemptions(
   return res.data
 }
 
+// Export redemption codes as CSV
+export async function exportRedemptions(
+  params: Pick<SearchRedemptionsParams, 'keyword' | 'status'> = {}
+): Promise<Blob> {
+  const queryParams = new URLSearchParams()
+  if (params.keyword) queryParams.set('keyword', params.keyword)
+  if (params.status) queryParams.set('status', params.status)
+  const query = queryParams.toString()
+  const res = await api.get(
+    `/api/redemption/export${query ? `?${query}` : ''}`,
+    { responseType: 'blob', skipErrorHandler: true }
+  )
+  return res.data as Blob
+}
+
 // Get single redemption code by ID
 export async function getRedemption(
   id: number
