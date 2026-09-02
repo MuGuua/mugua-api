@@ -39,14 +39,11 @@ jobs:
 
       - name: Configure SSH
         env:
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
           DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
         run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends sshpass
           install -m 700 -d "$RUNNER_TEMP/ssh"
-          # Normalize CRLF pasted into the multiline GitHub Secret.
-          printf '%s\n' "$DEPLOY_SSH_KEY" | tr -d '\r' > "$RUNNER_TEMP/ssh/id_ed25519"
-          chmod 600 "$RUNNER_TEMP/ssh/id_ed25519"
-          ssh-keygen -y -f "$RUNNER_TEMP/ssh/id_ed25519" > /dev/null
           if [ -n "$DEPLOY_KNOWN_HOSTS" ]; then
             printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/ssh/known_hosts"
           else
@@ -54,17 +51,23 @@ jobs:
           fi
 
       - name: Upload deployment package
+        env:
+          SSHPASS: ${{ secrets.DEPLOY_PASSWORD }}
         run: |
-          scp -P "$DEPLOY_PORT" \
-            -i "$RUNNER_TEMP/ssh/id_ed25519" \
+          sshpass -e scp -P "$DEPLOY_PORT" \
+            -o PreferredAuthentications=password \
+            -o PubkeyAuthentication=no \
             -o UserKnownHostsFile="$RUNNER_TEMP/ssh/known_hosts" \
             new-api-deploy.tar.gz \
             "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}:/tmp/new-api-deploy-${{ github.sha }}.tar.gz"
 
       - name: Start service on server
+        env:
+          SSHPASS: ${{ secrets.DEPLOY_PASSWORD }}
         run: |
-          ssh -p "$DEPLOY_PORT" \
-            -i "$RUNNER_TEMP/ssh/id_ed25519" \
+          sshpass -e ssh -p "$DEPLOY_PORT" \
+            -o PreferredAuthentications=password \
+            -o PubkeyAuthentication=no \
             -o UserKnownHostsFile="$RUNNER_TEMP/ssh/known_hosts" \
             "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}" \
             "DEPLOY_PATH='$DEPLOY_PATH' PACKAGE='/tmp/new-api-deploy-${{ github.sha }}.tar.gz' IMAGE_TAG='$IMAGE_TAG' bash -s" <<'REMOTE'
