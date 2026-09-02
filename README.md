@@ -55,6 +55,8 @@
 
 ## 📝 Project Description
 
+> **MuGuua customization**: This repository is maintained at [MuGuua/mugua-api](https://github.com/MuGuua/mugua-api) for project-specific code and deployment configuration. Upstream project, author, and attribution information is kept intact for license and source traceability.
+
 > [!IMPORTANT]
 > - This project is intended solely for lawful and authorized AI API gateway, organization-level authentication, multi-model management, usage analytics, cost accounting, and private deployment scenarios.
 > - Users must lawfully obtain upstream API keys, accounts, model services, and interface permissions, and must comply with upstream terms of service and applicable laws and regulations.

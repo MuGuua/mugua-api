@@ -55,6 +55,8 @@
 
 ## 📝 项目说明
 
+> **MuGuua 定制版说明**：本仓库地址为 [MuGuua/mugua-api](https://github.com/MuGuua/mugua-api)，用于维护本项目的定制代码和部署配置。上游项目、作者及相关致谢信息保持原样，便于追溯许可和代码来源。
+
 > [!IMPORTANT]
 > - 本项目仅面向合法授权的 AI API 网关、组织内部鉴权、多模型管理、用量统计、成本核算和私有化部署场景。
 > - 使用者必须合法取得上游 API Key、账号、模型服务或接口权限，并遵守上游服务条款及适用法律法规。
@@ -112,14 +114,21 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/QuantumNous/new-api.git
-cd new-api
+git clone https://github.com/MuGuua/mugua-api.git
+cd mugua-api
 
 # 编辑 docker-compose.yml 配置
 nano docker-compose.yml
 
 # 启动服务
 docker-compose up -d
+```
+
+如果要部署本仓库当前代码，请先构建本地镜像，并将 `docker-compose.yml` 中的镜像名改为 `mugua-api:latest`：
+
+```bash
+docker build -t mugua-api:latest .
+docker compose up -d
 ```
 
 <details>
