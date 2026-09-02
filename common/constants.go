@@ -172,6 +172,7 @@ var CohereSafetySetting string
 
 const (
 	RequestIdKey         = "X-Oneapi-Request-Id"
+	AITokenRequestIdKey  = "x-aitoken-request-id"
 	UpstreamRequestIdKey = "X-Upstream-Request-Id"
 )
 

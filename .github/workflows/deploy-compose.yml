@@ -1,0 +1,78 @@
+name: Deploy Docker Compose to server
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: production-deploy
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Build and deploy
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: new-api:${{ github.sha }}
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH || '/opt/new-api' }}
+      DEPLOY_PORT: ${{ vars.DEPLOY_PORT || '22' }}
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Build image
+        run: docker build --tag "$IMAGE_TAG" .
+
+      - name: Package image and Compose file
+        run: |
+          mkdir -p deploy-package
+          sed "s#image: calciumion/new-api:latest#image: ${IMAGE_TAG}#" \
+            docker-compose.yml > deploy-package/docker-compose.yml
+          docker save "$IMAGE_TAG" | gzip -1 > deploy-package/new-api-image.tar.gz
+          tar -czf new-api-deploy.tar.gz -C deploy-package .
+
+      - name: Configure SSH
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.DEPLOY_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d "$RUNNER_TEMP/ssh"
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$RUNNER_TEMP/ssh/id_ed25519"
+          chmod 600 "$RUNNER_TEMP/ssh/id_ed25519"
+          if [ -n "$DEPLOY_KNOWN_HOSTS" ]; then
+            printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$RUNNER_TEMP/ssh/known_hosts"
+          else
+            ssh-keyscan -p "$DEPLOY_PORT" -H "${{ vars.DEPLOY_HOST }}" > "$RUNNER_TEMP/ssh/known_hosts"
+          fi
+
+      - name: Upload deployment package
+        run: |
+          scp -P "$DEPLOY_PORT" \
+            -i "$RUNNER_TEMP/ssh/id_ed25519" \
+            -o UserKnownHostsFile="$RUNNER_TEMP/ssh/known_hosts" \
+            new-api-deploy.tar.gz \
+            "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}:/tmp/new-api-deploy-${{ github.sha }}.tar.gz"
+
+      - name: Start service on server
+        run: |
+          ssh -p "$DEPLOY_PORT" \
+            -i "$RUNNER_TEMP/ssh/id_ed25519" \
+            -o UserKnownHostsFile="$RUNNER_TEMP/ssh/known_hosts" \
+            "${{ vars.DEPLOY_USER }}@${{ vars.DEPLOY_HOST }}" \
+            "DEPLOY_PATH='$DEPLOY_PATH' PACKAGE='/tmp/new-api-deploy-${{ github.sha }}.tar.gz' IMAGE_TAG='$IMAGE_TAG' bash -s" <<'REMOTE'
+          set -euo pipefail
+          mkdir -p "$DEPLOY_PATH"
+          tar -xzf "$PACKAGE" -C "$DEPLOY_PATH"
+          docker load -i "$DEPLOY_PATH/new-api-image.tar.gz"
+          cd "$DEPLOY_PATH"
+          docker compose -f docker-compose.yml up -d --remove-orphans
+          docker image prune -f
+          rm -f "$DEPLOY_PATH/new-api-image.tar.gz" "$PACKAGE"
+          docker compose -f docker-compose.yml ps
+          REMOTE
